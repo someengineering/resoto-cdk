@@ -1,10 +1,13 @@
-import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-import * as eks from 'aws-cdk-lib/aws-eks';
+import { ClusterAddOn, ClusterInfo } from '@aws-quickstart/eks-blueprints/dist/spi';
+import * as blueprints from '@aws-quickstart/eks-blueprints';
 
-export class ResotoHelmChartStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, cluster: eks.Cluster, props?: cdk.StackProps) {
-    super(scope, id, props);
+
+export class ResotoHelmChartAddOn implements ClusterAddOn {
+
+  @blueprints.utils.dependable(blueprints.EbsCsiDriverAddOn.name)
+  deploy(clusterInfo: ClusterInfo): void {
+
+    const cluster = clusterInfo.cluster;
 
     const kubeArrangodbCrd = cluster.addHelmChart('kube-arangodb-crd-helm-chart', {
       repository: 'https://arangodb.github.io/kube-arangodb',
