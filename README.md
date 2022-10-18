@@ -1,8 +1,6 @@
-# Welcome to your CDK TypeScript project
+# Resoto CDK construct
 
-This is a blank project for CDK development with TypeScript.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+This construct library provides a CDK construct for deploying a Resoto application to AWS.
 
 ## Useful commands
 
