@@ -1,11 +1,12 @@
 import { ClusterAddOn, ClusterInfo } from '@aws-quickstart/eks-blueprints/dist/spi';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
+import { Construct } from 'constructs';
 
 
 export class ResotoHelmChartAddOn implements ClusterAddOn {
 
   @blueprints.utils.dependable(blueprints.EbsCsiDriverAddOn.name)
-  deploy(clusterInfo: ClusterInfo): void {
+  deploy(clusterInfo: ClusterInfo): void | Promise<Construct> {
 
     const cluster = clusterInfo.cluster;
 
@@ -63,6 +64,8 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
 
     // ArrangoDB is required before resoto can be deployed
     resotoChart.node.addDependency(arrangoManifest);
+
+    return Promise.resolve(resotoChart);
 
   }
 }
