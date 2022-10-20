@@ -16,11 +16,18 @@ const clusterProvider = new blueprints.MngClusterProvider({
 });
 
 export const buildEksBlueprint = (app: cdk.App, name: string) => {
+    
+    // used in case a CF only synth is required
+    const cloudFormationOnly = app.node.tryGetContext("cf-only") || false;
+    
     const stack = blueprints.EksBlueprint.builder()
         .addOns(...addons)
         .clusterProvider(clusterProvider)
         .build(app, name, {
             description: 'EKS cluster with Resoto Helm chart.',
+            synthesizer: new cdk.DefaultStackSynthesizer({
+                generateBootstrapVersionRule: !cloudFormationOnly,
+            }),
         });
     defineStackParameters(stack);
     return stack;
