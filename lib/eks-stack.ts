@@ -6,18 +6,67 @@ import { ResotoHelmChartAddOn } from '../lib/resoto-helm-chart-stack';
 
 const addons = [
     new blueprints.addons.EbsCsiDriverAddOn(),
-    new ResotoHelmChartAddOn(), 
+    new ResotoHelmChartAddOn(),
 ];
 
 const clusterProvider = new blueprints.MngClusterProvider({
-    minSize: 1,
-    maxSize: 2,
     instanceTypes: [new ec2.InstanceType('t3.medium')],
     amiType: eks.NodegroupAmiType.AL2_X86_64,
     version: eks.KubernetesVersion.of('1.23'),
 });
 
-export const buildEksBlueprint = (app: cdk.App, name: string) => blueprints.EksBlueprint.builder()
-    .addOns(...addons)
-    .clusterProvider(clusterProvider)
-    .build(app, name);
+export const buildEksBlueprint = (app: cdk.App, name: string) => {
+    const stack = blueprints.EksBlueprint.builder()
+        .addOns(...addons)
+        .clusterProvider(clusterProvider)
+        .build(app, name);
+    defineStackParameters(stack);
+    return stack;
+}
+
+
+const defineStackParameters = (eksStack: cdk.Stack) => {
+
+    const cfnMaxCapacity = new cdk.CfnParameter(eksStack, 'MngMaxSize', {
+        type: 'Number',
+        description: 'Maximum number of nodes in the cluster',
+        minValue: 1,
+        default: 3,
+    });
+
+    const cfnMinCapacity = new cdk.CfnParameter(eksStack, 'MngMinSize', {
+        type: 'Number',
+        description: 'Minimum number of nodes in the cluster',
+        minValue: 1,
+        default: 1,
+    });
+
+    const cfnDesiredCapacity = new cdk.CfnParameter(eksStack, 'MngDesiredSize', {
+        type: 'Number',
+        description: 'Desired number of nodes in the cluster',
+        minValue: 1,
+        default: 1,
+    });
+
+    const cfnMngInstanceType = new cdk.CfnParameter(eksStack, 'MngInstanceType', {
+        type: 'String',
+        description: 'Instance type for the managed node group',
+        default: 't3.large',
+    });
+
+    // A little bit of patching of the resulting stack. Unfortunately the eks blueprint package
+    // does not have a native capability to set MNG properties via CFN Parameters.
+    eksStack.node.children.filter(child => child instanceof eks.Cluster).forEach(cluser => {
+        cluser.node.children.filter(child => child instanceof eks.Nodegroup).forEach(ng => {
+            ng.node.children.filter(child => child instanceof eks.CfnNodegroup).forEach(cfnNg => {
+
+                const nodegroup = cfnNg as eks.CfnNodegroup;
+
+                nodegroup.addPropertyOverride("InstanceTypes.0", cfnMngInstanceType.valueAsString)
+                nodegroup.addPropertyOverride("ScalingConfig.MaxSize", cfnMaxCapacity.valueAsNumber)
+                nodegroup.addPropertyOverride("ScalingConfig.MinSize", cfnMinCapacity.valueAsNumber)
+                nodegroup.addPropertyOverride("ScalingConfig.DesiredSize", cfnDesiredCapacity.valueAsNumber)
+            })
+        })
+    });
+};

@@ -1,6 +1,7 @@
 import { ClusterAddOn, ClusterInfo } from '@aws-quickstart/eks-blueprints/dist/spi';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { Construct } from 'constructs';
+import { CfnParameter } from 'aws-cdk-lib';
 
 
 export class ResotoHelmChartAddOn implements ClusterAddOn {
@@ -45,13 +46,19 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
     // operator is required before the deployment
     arrangoManifest.node.addDependency(kubeArrahgodb);
 
+    const cfnTag = new CfnParameter(clusterInfo.getResourceContext().scope, 'ResotoTag', {
+      type: 'String',
+      description: 'Tag for the resoto helm chart',
+      default: '2.4.3',
+    });
+
     const resotoChart = cluster.addHelmChart('resoto-helm-chart', {
       repository: 'https://helm.some.engineering',
       chart: 'resoto',
       release: 'resoto',
       values: {
         image: {
-          tag: '2.4.3'
+          tag: cfnTag.valueAsString,
         },
         resotocore: {
           graphdb: {

@@ -5,4 +5,4 @@ import { buildEksBlueprint } from '../lib/eks-stack';
 
 const app = new cdk.App();
 
-const eksStack = buildEksBlueprint(app, 'resoto-eks-test-stack');
+const eksStack = buildEksBlueprint(app, 'resoto-eks-stack');
