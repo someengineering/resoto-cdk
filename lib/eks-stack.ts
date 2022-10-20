@@ -19,7 +19,9 @@ export const buildEksBlueprint = (app: cdk.App, name: string) => {
     const stack = blueprints.EksBlueprint.builder()
         .addOns(...addons)
         .clusterProvider(clusterProvider)
-        .build(app, name);
+        .build(app, name, {
+            description: 'EKS cluster with Resoto Helm chart.',
+        });
     defineStackParameters(stack);
     return stack;
 }
