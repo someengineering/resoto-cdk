@@ -51,7 +51,7 @@ const defineStackParameters = (eksStack: cdk.Stack) => {
     const cfnMngInstanceType = new cdk.CfnParameter(eksStack, 'MngInstanceType', {
         type: 'String',
         description: 'Instance type for the managed node group',
-        default: 't3.large',
+        default: 't3.medium',
     });
 
     // A little bit of patching of the resulting stack. Unfortunately the eks blueprint package
