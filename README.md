@@ -27,7 +27,7 @@ The following parameters can be customized:
 ## Cloudformation templates without CDK Bootstrap
 
 To generate a Cloudformation template which will be used without CDK, run `npm run cdk synth -- -c cf-only=true `.
-In this CDK will generate a Cloudformation template without the bootstrap section.
+In this case CDK will generate a Cloudformation template without the bootstrap section.
 
 ## Useful commands
 
