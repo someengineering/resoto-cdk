@@ -48,8 +48,8 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
 
     const cfnTag = new CfnParameter(clusterInfo.getResourceContext().scope, 'ResotoTag', {
       type: 'String',
-      description: 'Tag for the resoto helm chart',
-      default: '2.4.3',
+      description: 'Version of Resoto to install',
+      default: '2.4.4',
     });
 
     const resotoChart = cluster.addHelmChart('resoto-helm-chart', {
