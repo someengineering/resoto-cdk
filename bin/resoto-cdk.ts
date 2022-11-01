@@ -7,4 +7,6 @@ const app = new cdk.App();
 
 const eksStack = buildEksBlueprint(app, 'resoto-eks-stack');
 // Update the stack description from the blueprint generated one
-eksStack.templateOptions.description = 'EKS cluster with Resoto Helm chart.';
+eksStack.templateOptions.description = 'Resoto - Automate tedious infrastructure tasks, remarkably fast! https://resoto.com';
+
+app.synth();
