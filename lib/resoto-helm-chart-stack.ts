@@ -24,6 +24,7 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
     });
 
     const resotoServiceAccountIamRole = new iam.Role(stack, 'ResotoServiceAccountIamRole', {
+      roleName: 'resoto-service-account-iam-role',
       assumedBy: new iam.FederatedPrincipal(
         cluster.openIdConnectProvider.openIdConnectProviderArn, 
         {
