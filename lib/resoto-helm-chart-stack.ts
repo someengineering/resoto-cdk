@@ -1,8 +1,8 @@
 import { ClusterAddOn, ClusterInfo } from '@aws-quickstart/eks-blueprints/dist/spi';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { Construct } from 'constructs';
-import { CfnParameter } from 'aws-cdk-lib';
-
+import { CfnJson, CfnParameter } from 'aws-cdk-lib';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class ResotoHelmChartAddOn implements ClusterAddOn {
 
@@ -10,6 +10,38 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
   deploy(clusterInfo: ClusterInfo): void | Promise<Construct> {
 
     const cluster = clusterInfo.cluster;
+
+    const stack = clusterInfo.getResourceContext().scope;
+
+    const openIdConnectProviderIssuer = cluster.openIdConnectProvider.openIdConnectProviderIssuer;
+    const saNamespace = 'default';
+    const saAccountName = 'resoto-helm-chart-sa';
+
+    const openIdProviderCondition = new CfnJson(stack, 'openIdProviderCondition', {
+      value: {
+        [`${openIdConnectProviderIssuer}:sub`]: `system:serviceaccount:${saNamespace}:${saAccountName}`
+      }
+    });
+
+    const resotoServiceAccountIamRole = new iam.Role(stack, 'ResotoServiceAccountIamRole', {
+      assumedBy: new iam.FederatedPrincipal(
+        cluster.openIdConnectProvider.openIdConnectProviderArn, 
+        {
+          "StringEquals": openIdProviderCondition
+        },
+        "sts:AssumeRoleWithWebIdentity"
+      ),
+    });
+
+
+    const resotoHelmServiceAccount = cluster.addServiceAccount('resoto-helm-chart-sa', {
+      name: saAccountName,
+      namespace: saNamespace,
+      annotations: {
+        'eks.amazonaws.com/role-arn': resotoServiceAccountIamRole.roleArn,
+        'eks.amazonaws.com/sts-regional-endpoints': 'true'
+      }
+    });
 
     const kubeArrangodbCrd = cluster.addHelmChart('kube-arangodb-crd-helm-chart', {
       repository: 'https://arangodb.github.io/kube-arangodb',
@@ -65,12 +97,19 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
             server: 'http://single-server:8529',
           },
         },
+        // we want to use the already created service account 
+        // instead of creating a new one
+        serviceAccount: {
+          create: false,
+          name: resotoHelmServiceAccount.serviceAccountName,
+        },
       },
       wait: true,
     });
 
     // ArrangoDB is required before resoto can be deployed
     resotoChart.node.addDependency(arrangoManifest);
+    resotoChart.node.addDependency(resotoHelmServiceAccount);
 
     return Promise.resolve(resotoChart);
 
