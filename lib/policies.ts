@@ -170,6 +170,8 @@ export const tag_update_delete = iam.PolicyStatement.fromJson({
             "ec2:ReleaseHosts",
             "ec2:RevokeSecurityGroupEgress",
             "ec2:RevokeSecurityGroupIngress",
+            "ec2:StartInstances",
+            "ec2:StopInstances",
             "ec2:TerminateInstances",
             "ecs:DeleteCapacityProvider",
             "ecs:DeleteCluster",
