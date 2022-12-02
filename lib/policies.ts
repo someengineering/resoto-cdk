@@ -260,3 +260,14 @@ export const tag_update_delete = iam.PolicyStatement.fromJson({
         "Resource": "*"
     }
 );
+
+/**
+ * This is the permission to allow switching into the Resoto role in other accounts.
+ */
+export const allow_role_assume = iam.PolicyStatement.fromJson({
+        "Sid": "ResotoAssumeResotoRole",
+        "Effect": "Allow",
+        "Action": "sts:AssumeRole",
+        "Resource": "arn:aws:iam::*:role/Resoto"
+    }
+);

@@ -35,16 +35,17 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
                 "sts:AssumeRoleWithWebIdentity"
             ),
         });
+
+        // All detailed permissions to collect resources.
+        resotoServiceAccountIamRole.addToPolicy(policies.collect);
+        // All detailed permissions to do tag-update, tag-delete, and resource-delete.
+        resotoServiceAccountIamRole.addToPolicy(policies.tag_update_delete);
+        // Allow to assume the Resoto role.
+        resotoServiceAccountIamRole.addToPolicy(policies.allow_role_assume);
         // We attach the AWS managed ReadOnlyAccess policy to the service account IAM role for simplicity.
         // This is not really required, since the collect policy should already define the required permissions.
         // Reason: The list of collected resources changes over time, and we want to make it easy for the user.
         resotoServiceAccountIamRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('ReadOnlyAccess'));
-
-        // All detailed permissions to collect resources.
-        resotoServiceAccountIamRole.addToPolicy(policies.collect);
-
-        // All detailed permissions to do tag-update, tag-delete, and resource-delete.
-        resotoServiceAccountIamRole.addToPolicy(policies.tag_update_delete);
 
         const resotoHelmServiceAccount = cluster.addServiceAccount('resoto-helm-chart-sa', {
             name: saAccountName,
