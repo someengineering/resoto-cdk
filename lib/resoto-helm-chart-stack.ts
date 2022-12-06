@@ -3,9 +3,7 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import {Construct} from 'constructs';
 import {CfnJson, CfnParameter} from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as cdk from 'aws-cdk-lib';
-import {ManagedPolicy} from "aws-cdk-lib/aws-iam";
 import * as policies from "./policies"
 
 export class ResotoHelmChartAddOn implements ClusterAddOn {
@@ -17,7 +15,7 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
         const stack = clusterInfo.getResourceContext().scope;
         const openIdConnectProviderIssuer = cluster.openIdConnectProvider.openIdConnectProviderIssuer;
         const saNamespace = 'default';
-        const saAccountName = 'resoto-helm-chart-sa';
+        const saAccountName = 'resoto-helm-chart';
 
         const openIdProviderCondition = new CfnJson(stack, 'openIdProviderCondition', {
             value: {
@@ -25,8 +23,8 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
             }
         });
 
-        const resotoServiceAccountIamRole = new iam.Role(stack, 'ResotoServiceAccountIamRole', {
-            roleName: 'resoto-service-account-iam-role',
+        const resotoServiceAccountIamRole = new iam.Role(stack, 'ResotoRun', {
+            roleName: 'ResotoRun',
             assumedBy: new iam.FederatedPrincipal(
                 cluster.openIdConnectProvider.openIdConnectProviderArn,
                 {
@@ -42,12 +40,8 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
         resotoServiceAccountIamRole.addToPolicy(policies.tag_update_delete);
         // Allow to assume the Resoto role.
         resotoServiceAccountIamRole.addToPolicy(policies.allow_role_assume);
-        // We attach the AWS managed ReadOnlyAccess policy to the service account IAM role for simplicity.
-        // This is not really required, since the collect policy should already define the required permissions.
-        // Reason: The list of collected resources changes over time, and we want to make it easy for the user.
-        resotoServiceAccountIamRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('ReadOnlyAccess'));
 
-        const resotoHelmServiceAccount = cluster.addServiceAccount('resoto-helm-chart-sa', {
+        const resotoHelmServiceAccount = cluster.addServiceAccount('ResotoHelmChart', {
             name: saAccountName,
             namespace: saNamespace,
             annotations: {
@@ -56,7 +50,7 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
             }
         });
 
-        const kubeArrangodbCrd = cluster.addHelmChart('kube-arangodb-crd-helm-chart', {
+        const kubeArrangodbCrd = cluster.addHelmChart('KubeArangodbCrdHelmChart', {
             repository: 'https://arangodb.github.io/kube-arangodb',
             chart: 'kube-arangodb-crd',
             release: 'kube-arangodb-crd',
@@ -66,20 +60,14 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
         const cfnTag = new CfnParameter(clusterInfo.getResourceContext().scope, 'ResotoTag', {
             type: 'String',
             description: 'Version of Resoto to install',
-            default: '2.4.4',
+            default: '3.0.0',
         });
 
-        // Create a secret that can be looked up more easily by the user.
-        const psk = new secretsmanager.Secret(stack, 'ResotoPsk', {
-            description: 'This is the secret that is shared to secure the communication between the Resoto components. Note: this key is stored as secret in Kubernetes. Changing the value here will not have have any effect.',
-        });
-
-        const resotoChart = cluster.addHelmChart('resoto-helm-chart', {
+        const resotoChart = cluster.addHelmChart('ResotoHelmChart', {
             repository: 'https://helm.some.engineering',
             chart: 'resoto',
             release: 'resoto',
             values: {
-                psk: psk.secretValue.unsafeUnwrap(),
                 image: {
                     tag: cfnTag.valueAsString,
                 },
@@ -103,9 +91,8 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
 
         // Add the secret arn to the output table
         new cdk.CfnOutput(stack, 'ResotoPskSecretArn', {
-            description: 'The ARN of the secret that contains the PSK for Resoto',
-            value: psk.secretArn,
-            exportName: 'ResotoPsKSecretArn'
+            description: 'Command to get the PSK secret to access Resoto',
+            value: 'kubectl get secrets resoto-psk -o jsonpath="{.data.psk}" | base64 -d',
         });
         // Show the command to get the load balancer endpoint
         new cdk.CfnOutput(stack, 'ResotoAccessUICommand', {
