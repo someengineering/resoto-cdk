@@ -73,7 +73,9 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
                 },
                 resotocore: {
                     // Create a public reachable endpoint for the resoto service
-                    service: {type: 'LoadBalancer'}
+                    service: {type: 'LoadBalancer'},
+                    // For internal testing: enable the next line
+                    // extraArgs: ["--analytics-opt-out"]
                 },
                 // we want to use the already created service account
                 // instead of creating a new one

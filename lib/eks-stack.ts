@@ -2,7 +2,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import * as cdk from 'aws-cdk-lib';
-import { ResotoHelmChartAddOn } from '../lib/resoto-helm-chart-stack';
+import { ResotoHelmChartAddOn } from './resoto-helm-chart-stack';
 
 const addons = [
     new blueprints.addons.EbsCsiDriverAddOn(),
@@ -16,10 +16,10 @@ const clusterProvider = new blueprints.MngClusterProvider({
 });
 
 export const buildEksBlueprint = (app: cdk.App, name: string) => {
-    
+
     // used in case a CF only synth is required
     const cloudFormationOnly = app.node.tryGetContext("cf-only") || false;
-    
+
     const stack = blueprints.EksBlueprint.builder()
         .addOns(...addons)
         .clusterProvider(clusterProvider)
@@ -54,7 +54,7 @@ const defineStackParameters = (eksStack: cdk.Stack) => {
         type: 'Number',
         description: 'Desired number of nodes in the cluster',
         minValue: 1,
-        default: 1,
+        default: 2,
     });
 
     const cfnMngInstanceType = new cdk.CfnParameter(eksStack, 'MngInstanceType', {
