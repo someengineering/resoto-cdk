@@ -90,15 +90,21 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
         resotoChart.node.addDependency(kubeArrangodbCrd);
         resotoChart.node.addDependency(resotoHelmServiceAccount);
 
+        // Get the resoto service endpoint.
+        const core_service_address = cluster.getServiceLoadBalancerAddress("resoto-resotocore", {
+            namespace: saNamespace,
+            timeout: cdk.Duration.minutes(60),
+        });
+
         // Add the secret arn to the output table
         new cdk.CfnOutput(stack, 'ResotoPskSecretArn', {
             description: 'Command to get the PSK secret to access Resoto',
             value: 'kubectl get secrets resoto-psk -o jsonpath="{.data.psk}" | base64 -d',
         });
         // Show the command to get the load balancer endpoint
-        new cdk.CfnOutput(stack, 'ResotoAccessUICommand', {
-            description: 'Command to get the external address to Resoto. Type this into your browser: https://<external_address>:8900 to access the Resoto UI.',
-            value: 'kubectl get service resoto-resotocore -o wide'
+        new cdk.CfnOutput(stack, 'ResotoUIAddress', {
+            description: 'Resoto UI address',
+            value: 'https://'+core_service_address+':8900'
         })
         // Show the command to access Resoto Shell
         new cdk.CfnOutput(stack, 'ResotoAccessShellCommand', {
