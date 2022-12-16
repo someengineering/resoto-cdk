@@ -97,7 +97,7 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
         });
 
         // Add the secret arn to the output table
-        new cdk.CfnOutput(stack, 'ResotoPskSecretArn', {
+        new cdk.CfnOutput(stack, 'ResotoPskSecret', {
             description: 'Command to get the PSK secret to access Resoto',
             value: 'kubectl get secrets resoto-psk -o jsonpath="{.data.psk}" | base64 -d',
         });
