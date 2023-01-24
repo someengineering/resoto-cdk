@@ -22,7 +22,7 @@ The following parameters can be customized:
 - `MngMaxSize`: The maximum number of instances in the k8s managed node group. The default value is `3`.
 - `MngMinSize`: The minimum number of instances in the k8s managed node group. The default value is `1`.
 - `MngDesiredSize`: The desired number of instances in the k8s managed node group. The default value is `1`.
-- `MngInstanceType`: The instance type of the k8s managed node group. The default value is `t3.medium`.
+- `MngInstanceType`: The instance type of the k8s managed node group. The default value is `t3.large`.
 
 ## Cloudformation templates without CDK Bootstrap
 
