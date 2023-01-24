@@ -10,7 +10,7 @@ const addons = [
 ];
 
 const clusterProvider = new blueprints.MngClusterProvider({
-    instanceTypes: [new ec2.InstanceType('t3.medium')],
+    instanceTypes: [new ec2.InstanceType('t3.large')],
     amiType: eks.NodegroupAmiType.AL2_X86_64,
     version: eks.KubernetesVersion.of('1.23'),
 });
@@ -60,7 +60,7 @@ const defineStackParameters = (eksStack: cdk.Stack) => {
     const cfnMngInstanceType = new cdk.CfnParameter(eksStack, 'MngInstanceType', {
         type: 'String',
         description: 'Instance type for the managed node group',
-        default: 't3.medium',
+        default: 't3.large',
     });
 
     // A little bit of patching of the resulting stack. Unfortunately the eks blueprint package
