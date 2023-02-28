@@ -8,11 +8,10 @@ const addons = [
     new blueprints.addons.EbsCsiDriverAddOn(),
     new ResotoHelmChartAddOn(),
 ];
-
 const clusterProvider = new blueprints.MngClusterProvider({
-    instanceTypes: [new ec2.InstanceType('t3.large')],
+    instanceTypes: [new ec2.InstanceType('r5a.xlarge')],
     amiType: eks.NodegroupAmiType.AL2_X86_64,
-    version: eks.KubernetesVersion.of('1.23'),
+    version: eks.KubernetesVersion.V1_24,
 });
 
 export const buildEksBlueprint = (app: cdk.App, name: string) => {
@@ -54,13 +53,13 @@ const defineStackParameters = (eksStack: cdk.Stack) => {
         type: 'Number',
         description: 'Desired number of nodes in the cluster',
         minValue: 1,
-        default: 2,
+        default: 1,
     });
 
     const cfnMngInstanceType = new cdk.CfnParameter(eksStack, 'MngInstanceType', {
         type: 'String',
         description: 'Instance type for the managed node group',
-        default: 't3.large',
+        default: 'r5a.xlarge',
     });
 
     // A little bit of patching of the resulting stack. Unfortunately the eks blueprint package
