@@ -5,6 +5,7 @@ import {CfnJson, CfnParameter} from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cdk from 'aws-cdk-lib';
 import * as policies from "./policies"
+import {ManagedPolicy} from "aws-cdk-lib/aws-iam";
 
 export class ResotoHelmChartAddOn implements ClusterAddOn {
 
@@ -33,8 +34,10 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
             ),
         });
 
-        // All detailed permissions to collect resources.
-        resotoServiceAccountIamRole.addToPolicy(policies.collect);
+        // Attach the ReadOnlyAccess AWS managed policy
+        resotoServiceAccountIamRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('ReadOnlyAccess'));
+        // All missing permissions not available in the ReadOnlyAccess policy.
+        resotoServiceAccountIamRole.addToPolicy(policies.collectReadOnlyMissing);
         // All detailed permissions to do tag-update, tag-delete, and resource-delete.
         resotoServiceAccountIamRole.addToPolicy(policies.tag_update_delete);
         // Allow to assume the Resoto role.
