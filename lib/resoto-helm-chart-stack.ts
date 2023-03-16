@@ -73,6 +73,8 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
                 image: {
                     tag: cfnTag.valueAsString,
                 },
+                // Enable the ArangoDB operator
+                arangodb: { operator: { enabled: true } },
                 resotocore: {
                     // Create a public reachable endpoint for the resoto service
                     service: {type: 'LoadBalancer'},
