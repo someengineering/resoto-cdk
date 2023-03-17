@@ -10,6 +10,7 @@ export const collectReadOnlyMissing = iam.PolicyStatement.fromJson({
     "Action": [
         "organizations:ListAccounts",
         "ec2:DescribeRegions",
+        "ec2:DescribeFlowLogs",
         "iam:ListAccountAliases",
         "pricing:DescribeServices",
         "pricing:GetAttributeValues",
