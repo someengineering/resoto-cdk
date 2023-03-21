@@ -24,11 +24,6 @@ The following parameters can be customized:
 - `MngDesiredSize`: The desired number of instances in the k8s managed node group. The default value is `1`.
 - `MngInstanceType`: The instance type of the k8s managed node group. The default value is `t3.large`.
 
-## Cloudformation templates without CDK Bootstrap
-
-To generate a Cloudformation template which will be used without CDK, run `npm run cdk synth -- -c cf-only=true `.
-In this case CDK will generate a Cloudformation template without the bootstrap section.
-
 ## Useful commands
 
 * `npm run cdk deploy`      deploy this stack to your default AWS account/region
