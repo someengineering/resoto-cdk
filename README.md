@@ -2,6 +2,8 @@
 
 This construct library provides a CDK construct for deploying a Resoto application to AWS. With it, you can deploy Resoto application to AWS using a single command.
 
+Please follow the [Getting Started](https://resoto.com/docs/getting-started/install-resoto/aws/cdk) guide to learn how to use this construct.
+
 ## Installation
 
 1. Install nodejs. This construct is tested with nodejs 18.x. A convenient way to install nodejs is to use [nvm](https://github.com/nvm-sh/nvm).
@@ -19,10 +21,10 @@ Note that we should separate the cdk arguments via `--` to avoid confusion with 
 The following parameters can be customized:
 
 - `ResotoTag`: The tag of the Resoto image to use. See [Resoto](https://resoto.com) for the latest version.
-- `MngMaxSize`: The maximum number of instances in the k8s managed node group. The default value is `3`.
-- `MngMinSize`: The minimum number of instances in the k8s managed node group. The default value is `1`.
-- `MngDesiredSize`: The desired number of instances in the k8s managed node group. The default value is `1`.
-- `MngInstanceType`: The instance type of the k8s managed node group. The default value is `r5a.xlarge`.
+- `MngMaxSize`: The maximum number of instances in the k8s managed node group.
+- `MngMinSize`: The minimum number of instances in the k8s managed node group.
+- `MngDesiredSize`: The desired number of instances in the k8s managed node group.
+- `MngInstanceType`: The instance type of the k8s managed node group.
 
 ## Useful commands
 
