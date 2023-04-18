@@ -18,7 +18,7 @@ const clusterProvider = new blueprints.MngClusterProvider({
 export const buildEksBlueprint = (app: cdk.App, name: string) => {
 
     // used for internal development and testing
-    const disableAnalytics = (app.node.tryGetContext("disableAnalytics") || false) !== false;
+    const disableAnalytics = (String(app.node.tryGetContext("disableAnalytics") ?? "false")).toLocaleLowerCase() != "false";
 
     const stack = blueprints.EksBlueprint.builder()
         .addOns(...eksAddOns(disableAnalytics))
