@@ -5,7 +5,7 @@ import * as cdk from 'aws-cdk-lib';
 import { ResotoHelmChartAddOn } from './resoto-helm-chart-stack';
 
 
-const addons = (disableAnalytics: boolean) => [
+const eksAddOns = (disableAnalytics: boolean) => [
     new blueprints.addons.EbsCsiDriverAddOn(),
     new ResotoHelmChartAddOn(disableAnalytics),
 ];
@@ -21,7 +21,7 @@ export const buildEksBlueprint = (app: cdk.App, name: string) => {
     const disableAnalytics = (app.node.tryGetContext("disableAnalytics") || false) !== false;
 
     const stack = blueprints.EksBlueprint.builder()
-        .addOns(...addons(disableAnalytics))
+        .addOns(...eksAddOns(disableAnalytics))
         .clusterProvider(clusterProvider)
         .build(app, name, {
             description: 'EKS cluster with Resoto Helm chart.',
