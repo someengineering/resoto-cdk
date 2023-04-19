@@ -9,6 +9,12 @@ import {ManagedPolicy} from "aws-cdk-lib/aws-iam";
 
 export class ResotoHelmChartAddOn implements ClusterAddOn {
 
+    readonly disableAnalytics: boolean
+
+    constructor(disableAnalytics: boolean) {
+        this.disableAnalytics = disableAnalytics;
+    }
+
     @blueprints.utils.dependable(blueprints.EbsCsiDriverAddOn.name)
     deploy(clusterInfo: ClusterInfo): void | Promise<Construct> {
 
@@ -78,8 +84,7 @@ export class ResotoHelmChartAddOn implements ClusterAddOn {
                 resotocore: {
                     // Create a public reachable endpoint for the resoto service
                     service: {type: 'LoadBalancer'},
-                    // For internal testing: enable the next line
-                    // extraArgs: ["--analytics-opt-out"]
+                    extraArgs: this.disableAnalytics ? ["--analytics-opt-out"] : [],
                 },
                 // we want to use the already created service account
                 // instead of creating a new one

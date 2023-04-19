@@ -4,9 +4,10 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import * as cdk from 'aws-cdk-lib';
 import { ResotoHelmChartAddOn } from './resoto-helm-chart-stack';
 
-const addons = [
+
+const eksAddOns = (disableAnalytics: boolean) => [
     new blueprints.addons.EbsCsiDriverAddOn(),
-    new ResotoHelmChartAddOn(),
+    new ResotoHelmChartAddOn(disableAnalytics),
 ];
 const clusterProvider = new blueprints.MngClusterProvider({
     instanceTypes: [new ec2.InstanceType('r5a.xlarge')],
@@ -16,17 +17,14 @@ const clusterProvider = new blueprints.MngClusterProvider({
 
 export const buildEksBlueprint = (app: cdk.App, name: string) => {
 
-    // used in case a CF only synth is required
-    const cloudFormationOnly = app.node.tryGetContext("cf-only") || false;
+    // used for internal development and testing
+    const disableAnalytics = (String(app.node.tryGetContext("disableAnalytics") ?? "false")).toLocaleLowerCase() == "true";
 
     const stack = blueprints.EksBlueprint.builder()
-        .addOns(...addons)
+        .addOns(...eksAddOns(disableAnalytics))
         .clusterProvider(clusterProvider)
         .build(app, name, {
             description: 'EKS cluster with Resoto Helm chart.',
-            synthesizer: new cdk.DefaultStackSynthesizer({
-                generateBootstrapVersionRule: !cloudFormationOnly,
-            }),
         });
     defineStackParameters(stack);
     return stack;
