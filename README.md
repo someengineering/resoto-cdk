@@ -1,5 +1,11 @@
 # Resoto CDK construct
 
+## Project Status
+
+**IMPORTANT**: This project is no longer maintained. The repository is kept available for archival purposes and to allow interested developers to fork and modify the project as needed. Please note that since the project is not being actively maintained, issues and pull requests might not be attended to.
+
+## Goal
+
 This construct library provides a CDK construct for deploying a Resoto application to AWS. With it, you can deploy Resoto application to AWS using a single command.
 
 Please follow the [Getting Started](https://resoto.com/docs/getting-started/install-resoto/aws/cdk) guide to learn how to use this construct.
